@@ -89,13 +89,19 @@ async function loadLocaleDict(dirPath: string): Promise<LocaleDict> {
         }`,
       );
     }
-    dict[name] = (parsed && typeof parsed === "object" ? parsed : {}) as Record<string, unknown>;
+    dict[name] = (parsed && typeof parsed === "object" ? parsed : {}) as Record<
+      string,
+      unknown
+    >;
   }
 
   return dict;
 }
 
-function lookup(source: Record<string, unknown> | undefined, path: string[]): unknown {
+function lookup(
+  source: Record<string, unknown> | undefined,
+  path: string[],
+): unknown {
   let current: unknown = source;
   for (const segment of path) {
     if (current === null || typeof current !== "object") return undefined;
@@ -193,14 +199,22 @@ export default function i18n(options: I18nOptions = {}): StenoPlugin {
 
       config.globals = { ...config.globals, i18n: dict };
 
-      filters[filterName] = (key: unknown, locale?: unknown, arg3?: unknown, arg4?: unknown) => {
+      filters[filterName] = (
+        key: unknown,
+        locale?: unknown,
+        arg3?: unknown,
+        arg4?: unknown,
+      ) => {
         if (typeof key !== "string" || key === "") return "";
         const path = key.split(".");
-        const requestedLocale = typeof locale === "string" && locale ? locale : defaultLocale;
+        const requestedLocale =
+          typeof locale === "string" && locale ? locale : defaultLocale;
 
         const isVars = (v: unknown): v is Record<string, unknown> =>
           typeof v === "object" && v !== null;
-        const fallback = isVars(arg3) ? undefined : (arg3 as string | undefined);
+        const fallback = isVars(arg3)
+          ? undefined
+          : (arg3 as string | undefined);
         const vars = isVars(arg3) ? arg3 : isVars(arg4) ? arg4 : undefined;
 
         let value = lookup(dict[requestedLocale], path);

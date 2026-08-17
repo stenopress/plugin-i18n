@@ -12,9 +12,9 @@
 import { join, parse as parsePath } from "@std/path";
 import { parse as parseToml } from "@std/toml";
 import { parse as parseYaml } from "@std/yaml";
-import { MessageFormat } from "messageformat";
-import { filters } from "@steno/steno";
 import type { SiteConfig, StenoPlugin } from "@steno/steno";
+import { filters } from "@steno/steno";
+import { MessageFormat } from "messageformat";
 
 /** Options accepted by this plugin. */
 export interface I18nOptions {
@@ -89,19 +89,13 @@ async function loadLocaleDict(dirPath: string): Promise<LocaleDict> {
         }`,
       );
     }
-    dict[name] = (parsed && typeof parsed === "object" ? parsed : {}) as Record<
-      string,
-      unknown
-    >;
+    dict[name] = (parsed && typeof parsed === "object" ? parsed : {}) as Record<string, unknown>;
   }
 
   return dict;
 }
 
-function lookup(
-  source: Record<string, unknown> | undefined,
-  path: string[],
-): unknown {
+function lookup(source: Record<string, unknown> | undefined, path: string[]): unknown {
   let current: unknown = source;
   for (const segment of path) {
     if (current === null || typeof current !== "object") return undefined;
@@ -172,9 +166,6 @@ export default function i18n(options: I18nOptions = {}): StenoPlugin {
   let dict: LocaleDict = {};
   let missingKeys: Set<string> = new Set();
   let invalidMessages: Set<string> = new Set();
-  // Keyed by "locale source" so identical text in different locales
-  // compiles (and fails) independently. `null` caches a parse failure so a
-  // broken message isn't re-parsed, and re-warned about, on every call.
   let compiled: Map<string, MessageFormat | null> = new Map();
 
   function compile(locale: string, source: string): MessageFormat | null {
@@ -202,24 +193,15 @@ export default function i18n(options: I18nOptions = {}): StenoPlugin {
 
       config.globals = { ...config.globals, i18n: dict };
 
-      filters[filterName] = (
-        key: unknown,
-        locale?: unknown,
-        arg3?: unknown,
-        arg4?: unknown,
-      ) => {
+      filters[filterName] = (key: unknown, locale?: unknown, arg3?: unknown, arg4?: unknown) => {
         if (typeof key !== "string" || key === "") return "";
         const path = key.split(".");
-        const requestedLocale = typeof locale === "string" && locale
-          ? locale
-          : defaultLocale;
+        const requestedLocale = typeof locale === "string" && locale ? locale : defaultLocale;
 
         const isVars = (v: unknown): v is Record<string, unknown> =>
           typeof v === "object" && v !== null;
-        const fallback = isVars(arg3)
-          ? undefined
-          : (arg3 as string | undefined);
-        const vars = isVars(arg3) ? arg3 : (isVars(arg4) ? arg4 : undefined);
+        const fallback = isVars(arg3) ? undefined : (arg3 as string | undefined);
+        const vars = isVars(arg3) ? arg3 : isVars(arg4) ? arg4 : undefined;
 
         let value = lookup(dict[requestedLocale], path);
         if (value === undefined && requestedLocale !== defaultLocale) {

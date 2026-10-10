@@ -1,13 +1,13 @@
 {
   "name": "@steno/plugin-i18n",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Locale dictionary loading and a t() lookup filter for Steno sites.",
   "exports": {
     ".": "./mod.ts"
   },
   "license": "MIT",
   "imports": {
-    "@steno/steno": "jsr:@steno/steno@^0.12.0",
+    "@steno/steno": "jsr:@steno/steno@^0.13.0",
     "@std/assert": "jsr:@std/assert@1",
     "@std/path": "jsr:@std/path@1",
     "@std/yaml": "jsr:@std/yaml@1",
